@@ -1,0 +1,20 @@
+{
+    "name": "tamce/bbt",
+    "description": "SCUT BBT Task Project",
+    "type": "project",
+    "require": {
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tamce",
+            "email": "tamce@outlook.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ElfStack\\": "ElfStack/",
+            "Tamce\\BBT\\": "src/"
+        }
+    }
+}
