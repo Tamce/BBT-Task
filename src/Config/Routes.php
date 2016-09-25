@@ -28,7 +28,18 @@ Router::post('/api/login', 'Tamce\BBT\Controllers\Api\User@login');
 Router::post('/api/rigister', 'Tamce\BBT\Controllers\Api\User@register');
 Router::post('/api/update', 'Tamce\BBT\Controllers\Api\User@update');
 
-// Router::route('/', 'Tamce\BBT\Controllers\Common@index');
+Router::route('/', function () {
+	echo <<<EOD
+<a href="/installer/install">Set up database</a><br>
+<a href="/installer/uninstall">Clean database</a><br>
+<a href="/installer/reinstall">Clean and Re-SetUp database</a><br>
+<hr>
+<a href="/login">Login</a><br>
+<a href="/register">Register</a><br>
+<a href="/logout">Logout</a><br>
+<a href="/profile">Profile</a>
+EOD;
+});
 
 // Any other request return 404
 Router::route('*', function () {
