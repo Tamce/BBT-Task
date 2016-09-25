@@ -2,6 +2,7 @@
 namespace Tamce\BBT\Models;
 
 use PDO;
+use Tamce\BBT\Core\Helper;
 
 class Model
 {
@@ -23,14 +24,12 @@ class Model
 
 	protected function insert($table, array $cols, array $values)
 	{
-		echo '<pre>';
 		$this->pdo->beginTransaction();
 		// 构造类似 username,password,class 这样的字符串用于 sql 语句
 		$col = implode(',', $cols);
 
 		// 构造 ?,?,? 用于 pdo 的 prepare
 		$val = substr(str_repeat('?,', count($cols)), 0, -1);
-		var_dump("INSERT INTO `$table` ($col) VALUES ($val)");
 		$stat = $this->pdo->prepare("INSERT INTO `$table` ($col) VALUES ($val)");
 
 		// 按顺序填充值
@@ -41,8 +40,20 @@ class Model
 			}
 			$arr[] = $values[$key];
 		}
-		var_dump($arr);
 		$stat->execute($arr);
-		var_dump($this->pdo->commit());
+		Helper::treatPdoError($stat->errorInfo());
+		$this->pdo->commit();
+	}
+
+	protected function where($cond)
+	{
+		$arr = [];
+		$condition = '';
+		foreach ($cond as $key => $value) {
+			$condition .= "`$key` = ? AND ";
+			$arr[] = $value;
+		}
+		$condition = substr($condition, 0, -5);
+		return [$condition, $arr];
 	}
 }

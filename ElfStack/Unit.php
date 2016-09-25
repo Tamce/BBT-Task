@@ -48,13 +48,15 @@ class Unit
 	 * 在开头中的这些变量将会被实际值替换：
 	 * time, memory, numPassed, numFailed, numTotal, title
 	 *
+	 * 这里的 bootstrap 样式表目前暂时使用绝对路径
+	 *
 	 * @var string
 	 */
 	public $reportStart = 
 <<<EOD
 <html lang="zh-CN"><head>
 <meta charset="utf-8"><title>{{title}} - Unit Test Report</title>
-<link href="//cdn.bootcss.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" /></head>
+<link href="/static/style/bootstrap.min.css" rel="stylesheet" /></head>
 <body style="font-family: Helvetica Neue, Helvetica, Microsoft Yahei;">
 <center><h2>ElfStack Unit Test Report</h2><h3>{{title}}</h3></center>
 <br><br>

@@ -6,7 +6,7 @@ use Exception;
 class Renderer
 {
 	static $path;
-	static public function render($viewFile, $data = [], $statusCode = null)
+	static public function render($viewFile, $data = [], $statusCode = null, $echo = true)
 	{
 		try {
 			$page = new Renderer\Page(self::$path.$viewFile, $data);
@@ -17,7 +17,7 @@ class Renderer
 		if (!empty($statusCode)) {
 			http_response_code($statusCode);
 		}
-		$page->render();
+		return $page->show($echo);
 	}
 
 	static public function path($path)
@@ -40,10 +40,17 @@ class Page
 		$this->data = $data;
 	}
 
-	public function render()
+	public function show($echo = true)
 	{
+		ob_start();
 		extract($this->data);
 		include($this->file);
+		$output = ob_get_contents();
+		ob_end_clean();
+		if ($echo) {
+			echo $output;
+		}
+		return $output;
 	}
 
 	// ------- Helper Functions below are for view files

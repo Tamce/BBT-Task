@@ -9,3 +9,10 @@
 * 访问 `domain/installer/install` 可执行安装指令(初始化数据库表)
 * 访问 `domain/installer/uninstall` 可执行卸载指令(删除数据库表)
 * 访问 `domain/installer/reinstall` 可自动执行卸载指令后执行安装指令
+
+## 约定
+* ajax 请求返回键包含 `status`，值为 `['success', 'failed']` 之一
+* ajax 请求如果 `status` 不为 `success`，则 `info` 键中包含具体说明
+
+## 关于代码的一些说明
+ 由于一开始准备按整个需求做，而且准备做前后分离(做成SPA)，使用ajax + api 交互，但是既然要提前交基础功能，所以没有使用单页，而且一些 api 目前很乱，是为了让目前的这个架构能够正确工作而所做的变更和妥协。 例如 api 的 jump 键。

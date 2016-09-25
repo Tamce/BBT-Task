@@ -11,16 +11,34 @@ class Tests
 		$this->unit = new Unit();
 	}
 
-	public function testPdo()
+	public function testUser()
 	{
-		$this->unit->start('Test PDO Insert');
+		$this->unit->start('Test Controller `User` and Model `User`');
 
-		$this->unit->assert('手动插入测试', function () {
+		$this->unit->assert('检查操作前情况', function () {
 			$user = new User;
-			$s = $user->pdo->prepare('INSERT INTO `user` (username,password,class,info,userGroup,relationType) VALUES (?,?,?,?,?,?)');
-			$s->execute(['tamce', 'password', 'class', 'info', 'group', 'relationType']);
-			var_dump($s->errorInfo());
-			return $s->errorInfo()[0] === '00000';
+			var_dump($user->find(['username' => 'tamce']));
+			return true;
+		});
+
+		$this->unit->assert('测试 `User` 模型的插入', function () {
+			$user = new User;
+			// $user->create(['username' => 'tamce', 'password' => '12345',
+			//	'info' => json_encode(['name' => 'Tamce', 'gender' => 'male']), 'userGroup' => 1]);
+			return true;
+		}, '测试通过，已注释插入语句');
+
+		$this->unit->assert('测试 Update', function () {
+			$user = new User;
+			$u = $user->find(['username' => 'tamce'])[0];
+			$user->update(['username' => 'tamce'], ['accountStatus' => (int)$u['accountStatus'] + 1]);
+			return true;
+		}, '执行后用户的 accountStatus 值应该加一了');
+
+		$this->unit->assert('检查操作后情况', function () {
+			$user = new User;
+			var_dump($user->find(['username' => 'tamce']));
+			return true;
 		});
 
 		$this->unit->printResult();
