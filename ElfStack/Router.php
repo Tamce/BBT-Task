@@ -38,27 +38,31 @@ class Router
 		throw new \Exception('Call to undefined static function: '.$foo);
 	}
 
-	static public function method($method)
+	static public function method($method, $allowOverride = true)
 	{
+		// 从 HTTP 头中获取 X-Method-Override 来重写 HTTP 动词
+		if ($allowOverride and isset($_SERVER['HTTP_X_METHOD_OVERRIDE'])) {
+			return strtolower($_SERVER['HTTP_X_METHOD_OVERRIDE']) === strtolower($method);
+		}
 		return strtolower($_SERVER['REQUEST_METHOD']) === strtolower($method);
 	}
 
-	static public function route($uri, $callback, $method = null)
+	static public function route($uri, $callback, $method = null, $allowOverride = true)
 	{
 		if (self::$done) {
 			return false;
 		}
-		if (self::reroute($uri, $callback, $method)) {
+		if (self::reroute($uri, $callback, $method, $allowOverride)) {
 			self::$done = true;
 			return true;
 		}
 		return false;
 	}
 
-	static public function reroute($uri, $callback, $method = null)
+	static public function reroute($uri, $callback, $method = null, $allowOverride = true)
 	{
 		if (!empty($method)) {
-			if (self::method($method) === false) {
+			if (self::method($method, $allowOverride) === false) {
 				return false;
 			}
 		}

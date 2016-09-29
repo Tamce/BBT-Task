@@ -6,14 +6,18 @@ use Tamce\BBT\Core\Helper;
 
 class User
 {
-	public function login()
+	public function validate()
 	{
+		header('Content-Type: application/json');
+		if (isset($_SESSION['login'] && $_SESSION['login'])) {
+			echo json_encode(['status' => 'notice', 'data' => 'You have already login!', 'jump' => '/profile']);
+			return;
+		}
 		if (!isset($_POST['username'], $_POST['password'])) {
 			Helper::abort(400);
 		}
 		$muser = new MUser;
 		$result = $muser->find(['username' => $_POST['username']]);
-		header('Content-Type: application/json');
 		if (!empty($result)) {
 			$user = $result[0];
 			if (Helper::validatePassword($_POST['password'], $user['password'])) {
@@ -29,7 +33,7 @@ class User
 		echo json_encode(['status' => 'failed', 'info' => 'User not exist or invalid password!']);
 	}
 
-	public function register()
+	public function create()
 	{
 		header('Content-Type: application/json');
 		$muser = new MUser;
