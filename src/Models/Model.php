@@ -45,6 +45,9 @@ class Model
 		$this->pdo->commit();
 	}
 
+	/**
+	 * @return array [0 => pdo构造语句, 1 => 对应的值]
+	 */
 	protected function where($cond)
 	{
 		$arr = [];

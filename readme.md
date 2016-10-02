@@ -14,13 +14,27 @@
 * ajax 请求返回键包含 `status`，值为 `['success', 'failed', 'notice']` 之一
 * ajax 请求如果 `status` 不为 `success`，则 `info` 键中包含具体说明
 * 请求时带上 HTTP 头 `X-Method-Override` 可以重写 HTTP 动词
-* 请求时带上 HTTP 头 `X-Session-Id` 可以指定会话id
+* 请求时带上 HTTP 头 `X-Session-Id` 可以指定会话id，但必须通过 `X-Credential` 的验证
+* HTTP 头 `X-Credential` 包含了重现会话所需要的加密令牌
 
 ## 关于代码的一些说明
  由于一开始准备按整个需求做，而且准备做前后分离(做成SPA)，使用ajax + api 交互，但是既然要提前交基础功能，所以没有使用单页，而且一些 api 目前很乱，是为了让目前的这个架构能够正确工作而所做的变更和妥协。 例如 api 的 jump 键。
 
 ## Api Documents
- 访问 `domain/api`
+ 所有数据暂时以 form-data 形式传输给服务器
+### authorization
+#### request
+ * url: /api/authorization
+ * method: POST
+ * data: username=xxx&password=xxx
+
+#### response
+ * status: 状态
+ * info: 附加信息
+ * data: 若成功则为用户信息
+ * credential: 令牌
+ * session: 会话id
+
 
 ## TODO
  * 增加 API List 视图

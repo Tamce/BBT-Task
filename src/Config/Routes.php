@@ -18,34 +18,14 @@ Router::route('/test/user', 'Tamce\BBT\Controllers\Tests@testUser');
 
 /**
  * -----------------------------------------------------------
- *                         前端页面
- * -----------------------------------------------------------
- */
-Router::route('/register', function () {
-	Renderer::render('Register');
-});
-Router::route('/login', function () {
-	Renderer::render('Login');
-});
-Router::route('/profile', function () {
-	Renderer::render('Profile', $_SESSION);
-});
-Router::route('/logout', function () {
-	unset($_SESSION['user']);
-	unset($_SESSION['login']);
-	echo '<script>window.location.href = "/login";</script>';
-});
-
-
-/**
- * -----------------------------------------------------------
  *                         Api 接口
  * -----------------------------------------------------------
  */
 Router::route('/api', function () {
 	Renderer::render('Api');
 });
-Router::post('/api/user/{username}/auth', 'Tamce\BBT\Controllers\Api\User@validate');
+Router::post('/api/authorization', 'Tamce\BBT\Controllers\User@authorize');
+Router::get('/api/users', 'Tamce\BBT\Controllers\User@listUser');
 
 Router::post('/api/user', 'Tamce\BBT\Controllers\Api\User@create');
 Router::patch('/api/user/{username}', 'Tamce\BBT\Controllers\Api\User@patch');

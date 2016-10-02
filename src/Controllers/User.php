@@ -1,36 +1,51 @@
 <?php
-namespace Tamce\BBT\Controllers\Api;
+namespace Tamce\BBT\Controllers;
 
 use Tamce\BBT\Models\User as MUser;
 use Tamce\BBT\Core\Helper;
 
-class User
+class User extends Controller
 {
-	public function validate()
+	public function __construct()
 	{
+		parent::__construct();
 		header('Content-Type: application/json');
-		if (isset($_SESSION['login'] && $_SESSION['login'])) {
-			echo json_encode(['status' => 'notice', 'data' => 'You have already login!', 'jump' => '/profile']);
-			return;
+	}
+
+	public function authorize()
+	{
+		if (isset($_SESSION['login']) && $_SESSION['login']) {
+			$this->response(['status' => 'notice', 'info' => 'You have already login!']);
 		}
-		if (!isset($_POST['username'], $_POST['password'])) {
+		if (empty($this->request('username')) or empty($this->request('password'))) {
 			Helper::abort(400);
 		}
 		$muser = new MUser;
-		$result = $muser->find(['username' => $_POST['username']]);
+		$result = $muser->find(['username' => $this->request('username')]);
 		if (!empty($result)) {
 			$user = $result[0];
-			if (Helper::validatePassword($_POST['password'], $user['password'])) {
+			if (Helper::validatePassword($this->request('password'), $user['password'])) {
 				// 验证通过
 				unset($user['password']);
 				$_SESSION['user'] = $user;
 				$_SESSION['user']['info'] = json_decode($_SESSION['user']['info'], true);
 				$_SESSION['login'] = true;
-				echo json_encode(['status' => 'success', 'data' => $user, 'jump' => '/profile']);
-				return;
-			}	
+				$_SESSION['credential'] = Helper::randomString(15);
+				$this->response(['status' => 'success', 'info' => 'Login successfully', 'data' => $user, 'session' => session_id(), 'credential' => $_SESSION['credential']]);
+			}
 		}
-		echo json_encode(['status' => 'failed', 'info' => 'User not exist or invalid password!']);
+		$this->response(['status' => 'failed', 'info' => 'User not exist or invalid password!'], 401);
+	}
+
+	public function listUser()
+	{
+		// todo 权限限定
+		$user = new Muser;
+		$result = $user->all($this->queryString('range'), $this->queryString('count'));
+		foreach ($result as &$v) {
+			unset($v['password']);
+		}
+		$this->response(['status' => 'success', 'data' => $result, 'totalCount' => $user->count()]);
 	}
 
 	public function create()

@@ -64,33 +64,4 @@ class Helper
 	{
 		require_once(__DIR__ . '/Constants.php');
 	}
-
-// -------------------- 以下暂时没用到
-
-	static public $request = [];
-	static public function request($key = null)
-	{
-		if (!empty(self::$request)) {
-			if (empty($key)) {
-				return self::$request;
-			}
-			return empty(self::$request[$key]) ? null : self::$request[$key];
-		}
-
-		parse_str(file_get_contents('php://input'), self::$request);
-		return self::request($key);
-	}
-
-	static public $query = [];
-	static public function queryString($key = null)
-	{
-		if (!empty(self::$query)) {
-			if (empty($key)) {
-				return self::$query;
-			}
-			return empty(self::$query[$key]) ? null : self::$query[$key];
-		}
-		parse_str($_SERVER['QUERY_STRING'], self::$query);
-		return self::queryString($key);
-	}
 }

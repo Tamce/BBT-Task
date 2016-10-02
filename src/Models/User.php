@@ -62,4 +62,23 @@ class User extends Model
 		$stat->execute($arr[1]);
 		return $stat->fetchAll(PDO::FETCH_ASSOC);
 	}
+
+	public function all($range = null, $count = null)
+	{
+		$range = (int) $range;
+		$count = (int) $count;
+		if (is_null($range) or is_null($count)) {
+			$stat = $this->pdo->query('SELECT * FROM `user`');
+			return $stat->fetchAll(PDO::FETCH_ASSOC);
+		}
+		$stat = $this->pdo->query('SELECT * FROM `user` LIMIT '.$range.','.$count);
+		Helper::treatPdoError($stat->errorInfo());
+		return $stat->fetchAll(PDO::FETCH_ASSOC);
+	}
+
+	public function count()
+	{
+		$result = $this->pdo->query('SELECT COUNT(*) FROM `user`');
+		return (int) $result->fetchColumn();
+	}
 }
