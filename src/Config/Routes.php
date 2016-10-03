@@ -29,18 +29,17 @@ Router::get('/api/users', 'Tamce\BBT\Controllers\User@listUser');
 Router::post('/api/users', 'Tamce\BBT\Controllers\User@create');
 Router::route('/api/user', 'Tamce\BBT\Controllers\User@current');
 Router::get('/api/user/{username}', 'Tamce\BBT\Controllers\User@info');
-Router::get('/api/verify_update/{vid}', 'Tamce\BBT\Controllers\User@verifyUpdate');
+Router::get('/api/verify_update/{username}', 'Tamce\BBT\Controllers\User@verifyUpdate');
 
-// 下方待整理
-Router::post('/api/user', 'Tamce\BBT\Controllers\Api\User@create');
-Router::patch('/api/user/{username}', 'Tamce\BBT\Controllers\Api\User@patch');
-Router::get('/api/user/{username}', 'Tamce\BBT\Controllers\Api\User@profile');
-Router::delete('/api/user/{username}', 'Tamce\BBT\Controllers\Api\User@delete');
-
-Router::post('/api/class', 'Tamce\BBT\Controllers\Api\Class@create');
-Router::get('/api/class/{name}', 'Tamce\BBT\Controllers\Api\Class@info');
-Router::patch('/api/class/{name}', 'Tamce\BBT\Controllers\Api\Class@patch');
-Router::delete('/api/class/{name}', 'Tamce\BBT\Controllers\Api\Class@delete');
+// 待编写
+Router::get('/api/user/avatar', 'Tamce\BBT\Controllers\User@avatar');
+Router::post('/api/user/avatar', 'Tamce\BBT\Controllers\User@uploadAvatar');
+Router::get('/api/user/{username}/avatar', 'Tamce\BBT\Controllers\User@avatar');
+Router::post('/api/class', 'Tamce\BBT\Controllers\CClass@create');
+Router::get('/api/class/{classname}', 'Tamce\BBT\Controllers\CClass@show');
+Router::get('/api/class', 'Tamce\BBT\Controllers\CClass@listClass');
+Router::patch('/api/class/{classname}', 'Tamce\BBT\Controllers\CClass@patch');
+Router::get('/api/class/{classname}/{type}', 'Tamce\BBT\Controllers\CClass@member');
 
 
 /**

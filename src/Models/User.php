@@ -57,8 +57,21 @@ class User extends Model
 
 	public function updateVerify(array $info)
 	{
-		$this->pdo->prepare('DELETE FROM `verify` WHERE `username`=?')->execute($info['username']);
-		$this->insert('verify', ['username', 'info'], $info);
+		$this->deleteVerify($info['username']);
+		$this->insert('verify', ['username', 'info', 'classname'], $info);
+	}
+
+	public function deleteVerify($username)
+	{
+		$this->pdo->prepare('DELETE FROM `verify` WHERE `username`=?')->execute($username);
+	}
+
+	public function findVerify(array $cond)
+	{
+		$arr = $this->where($cond);
+		$stat = $this->pdo->prepare('SELECT * FROM `verify` WHERE ' . $arr[0]);
+		$stat->execute($arr[1]);
+		return $stat->fetchAll(PDO::FETCH_ASSOC);
 	}
 
 	public function find(array $cond)

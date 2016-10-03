@@ -4,7 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 use ElfStack\Renderer;
 
 // 关闭 E_NOTICE 级别错误输出
-error_reporting(E_ALL & ~E_NOTICE);
+// error_reporting(E_ALL & ~E_NOTICE);
 
 // 从 HTTP 头中获取会话信息
 if (isset($_SERVER['HTTP_X_SESSION_ID'])) {

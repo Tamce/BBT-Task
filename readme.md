@@ -40,7 +40,7 @@
 #### request
  * url: /api/user
  * method: GET / PATCH
- * data: (PATCH) gender=xxx&name=xxx&grade=xxx
+ * data: (PATCH) gender=xxx&name=xxx&classname=xxx
 
 #### response
  * status: 状态

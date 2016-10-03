@@ -8,11 +8,13 @@ class Relation extends SplEnum
 	const None = 0;
 	const Student = 1;
 	const Teacher = 2;
-	const Master = 3;
 }
 
-class AccountStatus extends SplEnum
+class UserGroup extends SplEnum
 {
-	// Todo
-	// 基础需求不需要
+	const __default == self::Student;
+
+	const Student = 1;
+	const Teacher = 2;
+	const Admin = 3;
 }

@@ -64,4 +64,22 @@ class Helper
 	{
 		require_once(__DIR__ . '/Constants.php');
 	}
+
+	static public function ensureLogin()
+	{
+		if (isset($_SESSION['login']) and $_SESSION['login']) {
+			return true;
+		}
+		http_response_code(401);
+		header('Content-Type: application/json');
+		echo json_encode(['status' => 'error', 'info' => 'Authorization Required!']);
+		die();
+	}
+
+	static public function packUser($user)
+	{
+		unset($user['password']);
+		$user['info'] = json_decode($user['info'], true);
+		return $user;
+	}
 }
