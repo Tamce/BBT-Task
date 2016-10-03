@@ -40,4 +40,12 @@ class Controller
 		}
 		return isset($this->queryString[$key]) ? $this->queryString[$key] : $default;
 	}
+
+	public function method($method = null)
+	{
+		if (is_null($method)) {
+			return strtoupper($_SERVER['REQUEST_METHOD']);
+		}
+		return strtoupper($method) === strtoupper($_SERVER['REQUEST_METHOD']);
+	}
 }

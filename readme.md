@@ -11,7 +11,7 @@
 * 访问 `domain/installer/reinstall` 可自动执行卸载指令后执行安装指令
 
 ## 约定
-* ajax 请求返回键包含 `status`，值为 `['success', 'failed', 'notice']` 之一
+* ajax 请求返回键包含 `status`，值为 `['success', 'error', 'notice']` 之一
 * ajax 请求如果 `status` 不为 `success`，则 `info` 键中包含具体说明
 * 请求时带上 HTTP 头 `X-Method-Override` 可以重写 HTTP 动词
 * 请求时带上 HTTP 头 `X-Session-Id` 可以指定会话id，但必须通过 `X-Credential` 的验证
@@ -22,7 +22,7 @@
 
 ## Api Documents
  所有数据暂时以 form-data 形式传输给服务器
-### authorization
+### Authorization
 #### request
  * url: /api/authorization
  * method: POST
@@ -35,6 +35,28 @@
  * credential: 令牌
  * session: 会话id
 
+### Current User
+ __Authorization Required__
+#### request
+ * url: /api/user
+ * method: GET / PATCH
+ * data: (PATCH) gender=xxx&name=xxx&grade=xxx
+
+#### response
+ * status: 状态
+ * data: 当前用户的当前信息
+ * info: 附加信息
+
+### All User
+#### request
+ * url: /api/users
+ * method: GET
+ * queryString: ?begin={start_index}&count={count}
+
+#### response
+ * status: 状态
+ * data: 数据
+ * totalCount: 记录总数
 
 ## TODO
  * 增加 API List 视图

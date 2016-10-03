@@ -8,7 +8,7 @@ use Tamce\BBT\Core\Helper;
 class User extends Model
 {
 	protected $required = ['username', 'password', 'info', 'userGroup'];
-	protected $cols = ['id', 'username', 'password', 'info', 'userGroup', 'accountStatus'];
+	protected $cols = ['id', 'username', 'password', 'info', 'userGroup', 'avatar', 'classname', 'relation'];
 	public function __construct()
 	{
 		parent::__construct();
@@ -53,6 +53,12 @@ class User extends Model
 		$stat->execute($arr);
 		Helper::treatPdoError($stat->errorInfo());
 		$this->pdo->commit();
+	}
+
+	public function updateVerify(array $info)
+	{
+		$this->pdo->prepare('DELETE FROM `verify` WHERE `username`=?')->execute($info['username']);
+		$this->insert('verify', ['username', 'info'], $info);
 	}
 
 	public function find(array $cond)

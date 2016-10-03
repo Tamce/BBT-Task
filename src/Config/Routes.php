@@ -26,7 +26,12 @@ Router::route('/api', function () {
 });
 Router::post('/api/authorization', 'Tamce\BBT\Controllers\User@authorize');
 Router::get('/api/users', 'Tamce\BBT\Controllers\User@listUser');
+Router::post('/api/users', 'Tamce\BBT\Controllers\User@create');
+Router::route('/api/user', 'Tamce\BBT\Controllers\User@current');
+Router::get('/api/user/{username}', 'Tamce\BBT\Controllers\User@info');
+Router::get('/api/verify_update/{vid}', 'Tamce\BBT\Controllers\User@verifyUpdate');
 
+// 下方待整理
 Router::post('/api/user', 'Tamce\BBT\Controllers\Api\User@create');
 Router::patch('/api/user/{username}', 'Tamce\BBT\Controllers\Api\User@patch');
 Router::get('/api/user/{username}', 'Tamce\BBT\Controllers\Api\User@profile');
