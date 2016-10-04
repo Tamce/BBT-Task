@@ -63,7 +63,7 @@ class User extends Model
 
 	public function deleteVerify($username)
 	{
-		$this->pdo->prepare('DELETE FROM `verify` WHERE `username`=?')->execute($username);
+		$this->pdo->prepare('DELETE FROM `verify` WHERE `username`=?')->execute([$username]);
 	}
 
 	public function findVerify(array $cond)

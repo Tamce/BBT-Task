@@ -16,7 +16,7 @@ class Installer extends Models\Model
 <<<EOD
 CREATE TABLE IF NOT EXISTS `class` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(63) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `classname` varchar(63) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `info` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
