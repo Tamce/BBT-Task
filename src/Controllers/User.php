@@ -28,7 +28,7 @@ class User extends Controller
 				$_SESSION['user'] = Helper::packUser($user);
 				$_SESSION['login'] = true;
 				$_SESSION['credential'] = Helper::randomString(15);
-				$this->response(['status' => 'success', 'info' => 'Login successfully', 'data' => $user, 'session' => session_id(), 'credential' => $_SESSION['credential']]);
+				$this->response(['status' => 'success', 'info' => 'Login successfully', 'data' => $_SESSION['user'], 'session' => session_id(), 'credential' => $_SESSION['credential']]);
 			}
 		}
 		$this->response(['status' => 'error', 'info' => 'User not exist or incorrect password!'], 401);
@@ -45,7 +45,8 @@ class User extends Controller
 		}
 
 		$user = new Muser;
-		$stat = $user->pdo->prepare('SELECT * FROM `user` WHERE `name` LIKE ?')->execute(['%'.$this->queryString('search').'%']);
+		$stat = $user->pdo->prepare('SELECT * FROM `user` WHERE `name` LIKE ?');
+		$stat->execute(['%'.$this->queryString('search').'%']);
 		$result = $stat->fetchAll(PDO::FETCH_ASSOC);
 		$data = [];
 		for ($i = (int) $this->queryString('begin'); $i < $this->queryString('count', count($result)); ++$i) {
@@ -168,7 +169,7 @@ class User extends Controller
 		// Teacher:
 		$data = [];
 		foreach ($result as &$p) {
-			if (in_array($p['classname'], json_decode($_SESSION['user']['classname'], true))) {
+			if (in_array($p['classname'], $_SESSION['user']['classname'])) {
 				$data[] = $p;
 			}
 		}
@@ -198,7 +199,7 @@ class User extends Controller
 				break;
 			case UserGroup::Student:
 				if ($_SESSION['user']['userGroup'] == UserGroup::Teacher) {
-					$classes = json_decode($_SESSION['user']['classname'], true);
+					$classes = $_SESSION['user']['classname'];
 					if (!in_array($verify['classname'], $classes)) {
 						$this->response(['status' => 'error', 'info' => 'User does not have privilege!'], 403);
 					}
@@ -208,7 +209,7 @@ class User extends Controller
 				}
 				break;
 			case UserGroup::Admin:
-				if ($_SESSION['user']['userGroup'] != Admin) {
+				if ($_SESSION['user']['userGroup'] != UserGroup::Admin) {
 					$this->response(['status' => 'error', 'info' => 'User does not have privilege!'], 403);
 				}
 				break;
@@ -238,7 +239,7 @@ class User extends Controller
 			$data = $result[0]['avatar'];
 		}
 		// echo $data;
-		echo empty($data) ? '<svg aria-hidden="true" version="1.1" viewBox="0 0 16 16" width="50" height="50"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>' : $data;
+		echo empty($data) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAA8CAYAAAA6/NlyAAADwUlEQVRoge1a8fEpMRC+35v3Px3QAR0cFdABHdABHdABKkAFqIAOUAEd3LvvZjKTOdlkk0ty74dvZscgl+yXTTab3fvJciQfhD91KxAbX8Lvjo8j/Df0ALfbLTmdTsnlcikE3yEy2u12Id1ut5A0TYvvQZAFwPV6zebzeZYrjRPASfAs+kBfPuGV8Pl8zsbjsTNJStAn+vYBL4Qfj0cQoiriGKtWwqvVKms2m8HJCsFY2+22HsIxrErJdDqNRxjLqtfr1UZWCHSwXeLWhDFAfnTUTlYIdLEhbU34f7CsytJBCNe5Z00ymUz8EoY3pgZrtVrZ4XAo2gwGA+9k0OdisSjG6HQ6ZDuO92YRxh7RHT3l2UV0NJvNKhMdjUYvkRaIU+2ho2k//xSsDciXcrLZbMj/85lNhsPhy++ImfEsIOJkESPn+674PB6Pxefz+SxibXzPFU/ysLJoXwb+7/f7pC75JCXr9ZomY7IuQrrEYAkstViABU366OJv4/VwuVyamkQFrG8CVgcJ3WxiphLGXotpYYzF0YmystbC2r0gYbfbsdr5QPkuTYHUSTeb3PtsTAvDpzQaDaNO0F0FkjB3OeP4iQ3d0SSLalmThHWBhhDMdNX7qSsQ7Jj0A4cyyD2MM9EEnL0crxkCqnO/DBWHSoRF8FAHvBO+3+/GDoNlFhlQRWFlqDiQhLnuvy5wtpKKw8cl4n8tYY6PUYEknLt9Z2ViALcrE1QcSMIchxQzpCyDY2EVh0pLGjWjuiDu0bYgCXPcviiOxQaW836/N7ZTcSAJc4MK7d0zELh3dCUHKlblZBaE+Cp0cYALAbe0Y3V5AHQZQlmgQAzSNkUAXC5U0DotTrwKYE8hsebqSDiAv8AY3PNXJA9fYJrRRDF7aZqS1zOftVwAyxKFM9VYOqGurcasJXLDckdYUgLIdFDE0Q4V/NzqVlV8tMUzeNa1hgWdKTilaeWqHT5Nl3EkCjhWR1+c9I1JdGOxKg+oLJQ7Rc5IkDZlEm3SQJxMi05MNSZ2qUU18/LS0SlqXcN1JMtJObGLaShUqQaR9ycsDYcm/sOxxq3qyZD7sBFvxTQB1dLWOQhXuBD2Xi4VKHttiCo7WAW2hFFO5cLplQdVBObz/LUhDF2CvvIAYACVpWUPLqoWUN4WXMKwbPCXWmSo9nRZQhF29R2VX0yDZ9QFC74JY6wqPsPbq4eUtX0ShlVrf/VQBs7k8t72QRh9+qpQBnl9GFZAOAnFXZafCGDQh+9iHeullnfCr03Eu+JL+N3xJfzu+Af73lrj2oFmcQAAAABJRU5ErkJggg==' : $data;
 	}
 
 	// POST /api/user/avatar
@@ -246,7 +247,9 @@ class User extends Controller
 	{
 		Helper::ensureLogin();
 		$muser = new MUser;
-		$muser->update(['username' => $_SESSION['user']['username']], ['avatar' => $this->request('avatar')]);
+		$avatar = file_get_contents('php://input');
+		$muser->update(['username' => $_SESSION['user']['username']], ['avatar' => $avatar]);
+		$_SESSION['avatar'] = $avatar;
 		$this->response(['status' => 'success', 'info' => 'Operation Complete!']);
 	}
 

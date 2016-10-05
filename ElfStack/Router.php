@@ -1,7 +1,7 @@
 <?php
 namespace ElfStack;
 
-defined('ELFENRO_ROUTE_PATH') ? '' : define('ELFENRO_ROUTE_PATH', parse_url($_SERVER['REQUEST_URI'])['path']);
+defined('ELFENRO_ROUTE_PATH') ? '' : define('ELFENRO_ROUTE_PATH', urldecode(parse_url($_SERVER['REQUEST_URI'])['path']));
 use Exception;
 
 class Router

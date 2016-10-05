@@ -4,6 +4,7 @@ namespace Tamce\BBT\Controllers;
 use Tamce\BBT\Models\MClass;
 use Tamce\BBT\Core\Helper;
 use UserGroup;
+use PDO;
 
 // 由于命名冲突问题故使用 CClass
 class CClass extends Controller
@@ -98,9 +99,11 @@ class CClass extends Controller
 			}
 		}
 		$count = $this->queryString('count', count($result));
+		$count = $count > count($result) ? count($result) : $count;
 		$data = [];
-		for ($i = (int)$this->queryString('begin'); $i < $count; ++$i) {
-			$data[] = $result[$i];
+		for ($i = (int)$this->queryString('begin'); $i < count($result); ++$i) {
+			$data[] = Helper::packUser($result[$i]);
+			if (count($data) == $count) break;
 		}
 		$this->response(['status' => 'success', 'data' => $data, 'totalCount' => count($result)]);
 	}

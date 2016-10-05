@@ -47,6 +47,15 @@ $this->js('/static/script/bootstrap.min.js');
 	<div id="stage-register"></div>
 	<div id="stage-class"></div>
 	<div id="stage-control"></div>
+	<div id="stage-verify"></div>
+</div>
+<div class="footer" style="margin-top: 5%; margin-bottom: 2%; width: 80%; margin-left: 10%;">
+<hr>
+<center><small>
+Copyright 2016 By Tamce<br>
+All rights reserved.
+<br>
+</small></center>
 </div>
 <script>
 // 此处通过 window 作为全局变量实现一个自定义的事件系统

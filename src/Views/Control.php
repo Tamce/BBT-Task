@@ -33,6 +33,29 @@ if ($_SESSION['user']['userGroup'] != UserGroup::Admin) {
 		<tbody id="ctrl-class-list">
 		</tbody>
 	</table>
+	<hr>
+	<h2>Search for user</h2>
+	<hr>
+	<form onsubmit="search(); return false;">
+		<div class="input-group">
+			<input type="text" class="form-control" id="ctrl-search">
+			<span class="input-group-btn">
+			<input class="btn btn-primary" type="submit" value="Search" />
+			</span>
+		</div>
+	</form>
+	<table class="table table-condensed">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Gender</th>
+				<th>User Group</th>
+				<th>Class</th>
+			</tr>
+		</thead>
+		<tbody id="ctrl-user-data">
+		</tbody>
+	</table>
 </div>
 <script>
 function updateClassList(data)
@@ -59,6 +82,28 @@ function addClass()
 				$("#ctrl-class-list").append("<tr><td>"+data.data.id+"</td><td>"+data.data.classname+"</td></tr>");
 				$("#ctrl-classname").val("");
 			}
+		},
+		error: function (xhr) {
+			alert("An error occurred!\n" + xhr.status + " " + xhr.statusText);
+		}
+	});
+}
+
+function search()
+{
+	$("#ctrl-user-data").html("");
+	$.ajax("/api/users?search="+$("#ctrl-search").val(), {
+		success: function (data) {
+			$.each(data.data, function (i, v) {
+				_group = v.userGroup == 1 ? 'Student' : v.userGroup == 2 ? 'Teacher' : 'Admin';
+				_clas = "";
+				if (v.userGroup == 2) {
+					_clas = v.classname.join("<br>");
+				} else {
+					_clas = v.classname;
+				}
+				$("#ctrl-user-data").append("<tr><td>"+v.name+"</td><td>"+v.gender+"</td><td>"+_group+"</td><td>"+_clas+"</td></tr>");
+			});
 		},
 		error: function (xhr) {
 			alert("An error occurred!\n" + xhr.status + " " + xhr.statusText);

@@ -1,8 +1,9 @@
 <div>
-<div>
-<h2>Welcome to Student Manage System!</h2>
+<div class="page-header">
+<h1>Personal Infomation</h1>
+</div>
 <div class="col-md-6 col-md-offset-3">
-	<div id="avatar" class="col-md-4 col-md-offset-4" style="text-align: center;"></div>
+	<div id="avatar" class="col-md-4 col-md-offset-4" style="text-align: center; cursor: pointer;" onclick="$('#modal-avatar').modal('show');"></div>
 	<table class="table table-condensed">
 		<thead>
 		<tr>
@@ -31,6 +32,9 @@
 	</table>
 	<div id="admin-only" class="alert alert-info">
 		<p>As an Admin, you can goto: <a class="alert-link" href="#control">Control Pannel</a></p>
+	</div>
+	<div id="profile-nonstu" class="alert alert-info">
+		<p>You can verify user's profile edit request. <a class="alert-link" href="#verify">See Verify List</a></p>
 	</div>
 </div>
 </div>
@@ -61,7 +65,7 @@
 						</select>
 					</div>
 					<div class="form-group">
-						<!--TODO 注意这里要特殊处理，因为教师的 class 字段是数组-->
+						<!--注意这里要特殊处理，因为教师的 class 字段是数组-->
 						<label>Class:</label>
 						<select class="form-control" id="modal-class" name="classname">
 						</select>
@@ -75,8 +79,57 @@
 		</div>
 	</div>
 </div>
-<div>
+
+<div class="modal fade" id="modal-avatar" tabindex="-1" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+				<h4 class="modal-title" id="modal-title">Change Avatar</h4>
+			</div>
+			<div class="modal-body">
+				<form id="avatar-form">
+					<input type="file" id="file-avatar" />
+				</form>
+				<div id="avatar-img">Preview</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" onclick="changeAvatar();">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
 <script>
+function changeAvatar()
+{
+	$.ajax("/api/user/avatar", {
+		method: "POST",
+		data: window._sms.avatar,
+		success: function (data) {
+			$("#avatar").html('<img src="'+window._sms.avatar+'" />');
+			$("#modal-avatar").modal("hide");
+		},
+		error: function (xhr) {
+			alert("An error occurred!\n" + xhr.status + " " + xhr.statusText);
+		}
+	})
+}
+
+$("#file-avatar").on("change", function () {
+	file = $("#file-avatar")[0].files[0];
+	if(!/image\/\w+/.test(file.type)) {
+		alert("Ensure you have choose a image file!");
+		return false;
+	}
+	var reader = new FileReader();
+	reader.readAsDataURL(file);
+	reader.onload = function (e) {
+		$("#avatar-img").html('<img src="'+this.result+'" alt=""/>');
+		window._sms.avatar = this.result;
+	}
+});
+
 function _profile()
 {
 	if (window._sms.login != true) {
@@ -95,7 +148,7 @@ function _profile()
 				});
 			},
 			error: function (xhr) {
-				alert("An error occurred when fetching class info!\n" + xhr.status + " " + xhr.statusText);
+				alert("An error occurred!\n" + xhr.status + " " + xhr.statusText);
 			}
 		});
 
@@ -120,7 +173,13 @@ function _profile()
 		$("#modal-edit-profile").modal("show");
 	}
 
-	$("#avatar").load("/api/user/avatar");
+	$.ajax("/api/user/avatar", {
+		method: "GET",
+		success: function (data) {
+			console.log(data);
+			$("#avatar").html('<img src="'+data+'" alt="" />');
+		}
+	});
 	syncInfo();
 }
 
@@ -136,9 +195,7 @@ function syncInfo()
 	$("#profile-userGroup").text(window._sms.user.userGroup == 1 ? "Student" : window._sms.user.userGroup == 2 ? "Teacher" : "Admin");
 	if (window._sms.user.userGroup == 2) {
 		$("#profile-class").text("");
-		$.each(window._sms.user.classname, function (index, value) {
-			$("#profile-class").append(value + "<br>");
-		});
+		$("#profile-class").text(window._sms.user.classname.join(", "));
 	} else {
 		$("#profile-class").text(window._sms.user.classname);
 	}
@@ -146,9 +203,15 @@ function syncInfo()
 
 function changeProfile()
 {
+	_classname = "";
+	if (window._sms.user.userGroup == 2) {
+		_classname = JSON.stringify($("#modal-class").val());
+	} else {
+		_classname = $("#modal-class").val();
+	}
 	$.ajax("/api/user", {
 		method: "PATCH",
-		data: $("#profile-form").serialize(),
+		data: "name="+$("#modal-name").val()+"&gender="+$("#modal-gender").val()+"&classname="+_classname,
 		success: function (data) {
 			if (data.status == "success") {
 				window._sms.user = data.data;

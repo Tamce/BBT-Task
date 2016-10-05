@@ -3,7 +3,7 @@ namespace Tamce\BBT\Core;
 
 use ElfStack\Renderer;
 use Exception;
-use SplEnum;
+use UserGroup;
 
 class Helper
 {
@@ -78,8 +78,12 @@ class Helper
 
 	static public function packUser($user)
 	{
+		self::loadConstants();
 		unset($user['password']);
 		unset($user['avatar']);
+		if ($user['userGroup'] == UserGroup::Teacher) {
+			$user['classname'] = json_decode($user['classname'], true);
+		}
 		return $user;
 	}
 
@@ -98,7 +102,11 @@ class Helper
 		echo "\n";
 		foreach ($e as $p) {
 			foreach ($p as $key => $value) {
-				echo "$value\t";
+				if (is_array($value)) {
+					echo implode(', ', $value)."\t";
+				} else {
+					echo "$value\t";
+				}
 			}
 			echo "\n";
 		}

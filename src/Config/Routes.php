@@ -52,7 +52,7 @@ Router::get('/api/class/{classname}/{type}', 'Tamce\BBT\Controllers\CClass@membe
 Router::get('/stage/{stage}', function ($stage) {
 	$stage = strtolower($stage);
 	try {
-		if (in_array($stage, ['home', 'profile', 'login', 'register', 'control', 'class'])) {
+		if (in_array($stage, ['home', 'profile', 'login', 'register', 'control', 'class', 'verify'])) {
 			Renderer::render(ucfirst($stage));
 		} else {
 			Helper::abort(404);
