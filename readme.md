@@ -22,6 +22,7 @@
 
 ## Api Documents
  所有数据暂时以 form-data 形式传输给服务器
+---
 ### Authorization
 #### request
  * url: /api/authorization
@@ -35,8 +36,17 @@
  * credential: 令牌
  * session: 会话id
 
+---
+
+### Logout
+ * url: /api/logout
+ * method: GET
+
+---
+
 ### Current User
  __Authorization Required__
+ 新注册用户可以有一次免审核修改个人信息的机会
 #### request
  * url: /api/user
  * method: GET / PATCH
@@ -47,19 +57,121 @@
  * data: 当前用户的当前信息
  * info: 附加信息
 
+---
+
 ### All User
+ __Authorization Required (Admin)__
 #### request
  * url: /api/users
  * method: GET
- * queryString: ?begin={start_index}&count={count}
+ * queryString: ?begin={start_index}&count={count}&search={keyword}
 
 #### response
  * status: 状态
  * data: 数据
  * totalCount: 记录总数
 
-## TODO
- * 增加 API List 视图
- * 更改 User 控制器，规范化 RESTful API
- * 移除现有视图，采用 SPA + API
- * 验证用户名密码后返回 Token，使用 Token 重建带有权限的会话
+---
+
+### Register
+#### request
+ * url: /api/users?key={key}
+ * method: POST
+ * data: username={username}&password={password}&userGroup={1|2|3}
+ 如果 userGroup 为 `3` 即 `Admin`，则必须在请求url后附加 `key`，将使用该值与 `Constants::Key` 比较，如果相同则允许创建 `Admin` 用户。
+
+#### response
+ * status: 状态
+ * data: 新创建的用户信息
+ * session: Session-Id
+ * credential: 令牌信息
+
+---
+
+### User Info
+ __Authorization Required__
+ Student Group 只能查看同班的信息
+#### request
+ * url: /api/user/{username}
+ * method: GET
+
+#### response
+ * status: 状态
+ * data: 目标用户信息
+
+---
+
+### Verify Update
+ __Authorization Required__
+#### request
+ * url: /api/verify_update/{username}
+ * method: GET
+
+#### response
+ (if no error)
+ * {"status": "success", "info": "Operation Complete!"}
+
+---
+
+### Create Class
+ __Authorization Required__ (Admin)
+#### request
+ * url: /api/class
+ * method: POST
+ * data: classname={name}
+
+#### response
+ * status: 状态
+ * data: 班级信息数据
+
+---
+
+### List Class
+ __Authorization Required__
+#### request
+ * url: /api/class
+ * method: GET
+
+#### response
+ * status: 状态
+ * data: 数据
+
+---
+
+### Show Class Info
+ __Authorization Required__
+#### request
+ * url: /api/class/{classname}
+ * method: GET
+
+#### response
+ * status: 状态
+ * data: 数据
+
+---
+
+### View Class's member
+ __Authorization Required__
+#### request
+ * url: /api/class/{classname}/{student|teacher|all}(?begin={begin_index}&count={count})
+ * method: GET
+
+#### response
+ * status: 状态
+ * data: 数据
+ * totalCount: 总数
+
+---
+
+### Export Xls Data
+ __Authorization Required__ (Admin)
+#### request
+ * url: /api/export/all
+ * url: /api/export/{classname}/{student|teacher|all}
+
+---
+
+## Tests
+ 1. curl public.bbt.localhost/api/users -X POST -d "username=tamce&password=123&userGroup=1"
+ 2. curl public.bbt.localhost/api/user -H "X-Session-Id: 25atfnfvm3vkmuvfhkmdadlbl3" -H "X-Credential: jfioBn7gVznyhKv"
+ 3. curl public.bbt.localhost/api/user -X PATCH -d "gender=male&name=Tamce&classname=class%201" -H "X-Session-Id: 25atfnfvm3vkmuvfhkmdadlbl3" -H "X-Credential: jfioBn7gVznyhKv"

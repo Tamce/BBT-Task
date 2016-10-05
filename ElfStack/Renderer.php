@@ -27,6 +27,9 @@ class Renderer
 }
 
 namespace ElfStack\Renderer;
+
+use Exception;
+
 class Page
 {
 	protected $file;

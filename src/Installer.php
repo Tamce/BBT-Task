@@ -33,11 +33,11 @@ CREATE TABLE IF NOT EXISTS `user` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(63) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `password` varchar(63) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `info` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `avatar` varchar(63) CHARACTER SET utf8 COLLATE utf8_bin,
+  `name` varchar(31) CHARACTER SET utf8 COLLATE utf8_bin,
+  `gender` varchar(31) CHARACTER SET utf8 COLLATE utf8_bin,
+  `avatar` text CHARACTER SET utf8 COLLATE utf8_bin,
   `userGroup` int(5) NOT NULL,
   `classname` text CHARACTER SET utf8 COLLATE utf8_bin,
-  `relation` int(5) DEFAULT 0,
   `newUser` int(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
@@ -51,7 +51,8 @@ EOD
 CREATE TABLE IF NOT EXISTS `verify` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(63) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `info` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `name` varchar(31) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `gender` varchar(31) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `classname` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;

@@ -11,7 +11,7 @@ if (isset($_SERVER['HTTP_X_SESSION_ID'])) {
 	session_id($_SERVER['HTTP_X_SESSION_ID']);
 	session_start();
 	// 确保重现会话的令牌一致
-	if (!isset($_SESSION['credential'], $_SERVER['HTTP_X_CREDENTIAL']) or $_SERVER['HTTP_X_CREDENTIAL'] != $SESSION['credential']) {
+	if (!isset($_SESSION['credential'], $_SERVER['HTTP_X_CREDENTIAL']) or $_SERVER['HTTP_X_CREDENTIAL'] != $_SESSION['credential']) {
 		header('Content-Type: application/json');
 		die(json_encode(['status' => 'error', 'info' => '401 Unauthorized']));
 	}

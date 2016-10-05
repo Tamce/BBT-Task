@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 	"current_user_url": "/api/user",
 	"all_users_url": "/api/users",
 	"user_url": "/api/user/{username}",
-	"all_class_url": "/api/classes",
+	"all_class_url": "/api/class",
 	"class_url": "/api/class/{classname}",
-	"users_in_class_url": "/api/class/{classname}/users"
+	"users_in_class_url": "/api/class/{classname}/{type}"
 }

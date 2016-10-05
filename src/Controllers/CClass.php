@@ -21,12 +21,13 @@ class CClass extends Controller
 			$this->response(['status' => 'error', 'info' => 'This class is existed!']);
 		}
 		$mclass->create(['classname' => $this->request('classname'), 'info' => '{}']);
-		$this->response(['status' => 'success', 'data' => $mclass->find(['classname' => $this->request('classname')])]);
+		$this->response(['status' => 'success', 'data' => $mclass->find(['classname' => $this->request('classname')])[0]]);
 	}
 
 	// GET /api/class
 	public function listClass()
 	{
+		Helper::ensureLogin();
 		$mclass = new MClass;
 		$this->response(['status' => 'success', 'data' => $mclass->all()]);
 	}
@@ -34,6 +35,7 @@ class CClass extends Controller
 	// GET /api/class/{classname}
 	public function show($classname)
 	{
+		Helper::ensureLogin();
 		$mclass = new MClass;
 		$result = $mclass->find(['classname' => $classname]);
 		if (count($result) == 0) {
@@ -59,7 +61,6 @@ class CClass extends Controller
 	{
 		Helper::ensureLogin();
 		Helper::loadConstants();
-		$classname = strtolower($classname);
 		$type = strtolower($type);
 		if ($_SESSION['user']['userGroup'] == UserGroup::Student) {
 			if ($_SESSION['user']['classname'] != $classname) {
@@ -82,14 +83,66 @@ class CClass extends Controller
 		}
 
 		$mclass = new MClass;
-		$stat = $mclass->pdo->prepare("SELECT * FROM `user` WHERE `classname`=? AND ($where)");
-		$stat->execute(['classname']);
-		$result = $stat->fetchAll(PDO::FETCH_ASSOC);
+		$stat = $mclass->pdo->prepare("SELECT * FROM `user` WHERE `classname` LIKE ? AND ($where)");
+		$stat->execute(["%$classname%"]);
+		$like = $stat->fetchAll(PDO::FETCH_ASSOC);
+		$result = [];
+		foreach ($like as &$p) {
+			if ($p['userGroup'] == UserGroup::Teacher) {
+				if (in_array($classname, json_decode($p['classname'], true))) {
+					$result[] = $p;
+				}
+			} else {
+				$result[] = $p;
+			}
+		}
 		$count = $this->queryString('count', count($result));
 		$data = [];
 		for ($i = (int)$this->queryString('begin'); $i < $count; ++$i) {
 			$data[] = $result[$i];
 		}
 		$this->response(['status' => 'success', 'data' => $data, 'totalCount' => count($result)]);
+	}
+
+	// GET /api/export/{classname}/{type}
+	public function export($classname, $type)
+	{
+		Helper::ensureLogin();
+		Helper::loadConstants();
+		if ($_SESSION['user']['userGroup'] != UserGroup::Admin) {
+			$this->response(['status' => 'error', 'info' => 'User does not have privilege!'], 403);
+		}
+
+		$type = strtolower($type);
+		$where = '';
+		switch ($type) {
+			case 'students':
+			case 'student':
+				$where = '`userGroup`='.UserGroup::Student;
+				break;
+			case 'teachers':
+			case 'teacher':
+				$where = '`userGroup`='.UserGroup::Teacher;
+				break;
+			case 'all':
+				$where = '`userGroup`='.UserGroup::Student.' OR `userGroup`='.UserGroup::Teacher;
+				break;
+		}
+
+		$mclass = new MClass;
+		$stat = $mclass->pdo->prepare("SELECT * FROM `user` WHERE `classname` LIKE ? AND ($where)");
+		$stat->execute(["%$classname%"]);
+		$like = $stat->fetchAll(PDO::FETCH_ASSOC);
+		$result = [];
+		foreach ($like as &$p) {
+			if ($p['userGroup'] == UserGroup::Teacher) {
+				if (in_array($classname, json_decode($p['classname'], true))) {
+					$result[] = Helper::packUser($p);
+				}
+			} else {
+				$result[] = Helper::packUser($p);
+			}
+		}
+		Helper::exportXls($result);
 	}
 }

@@ -79,7 +79,28 @@ class Helper
 	static public function packUser($user)
 	{
 		unset($user['password']);
-		$user['info'] = json_decode($user['info'], true);
+		unset($user['avatar']);
 		return $user;
+	}
+
+	static public function exportXls(array $e)
+	{
+		if (empty($e)) {
+			header('Content-Type: application/json');
+			echo json_encode(['status' => 'notice', 'info' => 'Empty Content! Not Exporting!']);
+			die();
+		}
+		header('Content-type:application/vnd.ms-excel');
+		header('Content-Disposition:filename=Export.xls');
+		foreach ($e[0] as $key => $value) {
+			echo "$key\t";
+		}
+		echo "\n";
+		foreach ($e as $p) {
+			foreach ($p as $key => $value) {
+				echo "$value\t";
+			}
+			echo "\n";
+		}
 	}
 }

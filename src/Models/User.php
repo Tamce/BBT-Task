@@ -8,7 +8,7 @@ use Tamce\BBT\Core\Helper;
 class User extends Model
 {
 	protected $required = ['username', 'password', 'info', 'userGroup'];
-	protected $cols = ['id', 'username', 'password', 'info', 'userGroup', 'avatar', 'classname', 'relation'];
+	protected $cols = ['id', 'username', 'password', 'name', 'gender', 'userGroup', 'avatar', 'classname', 'newUser'];
 	public function __construct()
 	{
 		parent::__construct();
@@ -58,7 +58,7 @@ class User extends Model
 	public function updateVerify(array $info)
 	{
 		$this->deleteVerify($info['username']);
-		$this->insert('verify', ['username', 'info', 'classname'], $info);
+		$this->insert('verify', ['username', 'name', 'gender', 'classname'], $info);
 	}
 
 	public function deleteVerify($username)
@@ -82,22 +82,10 @@ class User extends Model
 		return $stat->fetchAll(PDO::FETCH_ASSOC);
 	}
 
-	public function all($range = null, $count = null)
+	public function all()
 	{
-		$range = (int) $range;
-		$count = (int) $count;
-		if (is_null($range) or is_null($count)) {
-			$stat = $this->pdo->query('SELECT * FROM `user`');
-			return $stat->fetchAll(PDO::FETCH_ASSOC);
-		}
-		$stat = $this->pdo->query('SELECT * FROM `user` LIMIT '.$range.','.$count);
+		$stat = $this->pdo->query('SELECT * FROM `user`');
 		Helper::treatPdoError($stat->errorInfo());
 		return $stat->fetchAll(PDO::FETCH_ASSOC);
-	}
-
-	public function count()
-	{
-		$result = $this->pdo->query('SELECT COUNT(*) FROM `user`');
-		return (int) $result->fetchColumn();
 	}
 }

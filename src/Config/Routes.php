@@ -21,10 +21,22 @@ Router::route('/test/user', 'Tamce\BBT\Controllers\Tests@testUser');
  *                         Api 接口
  * -----------------------------------------------------------
  */
+Router::route('/', function () {
+	Renderer::render('Index');
+});
 Router::route('/api', function () {
 	Renderer::render('Api');
 });
 Router::post('/api/authorization', 'Tamce\BBT\Controllers\User@authorize');
+Router::get('/api/logout', function () {
+	Helper::ensureLogin();
+	unset($_SESSION['user']);
+	unset($_SESSION['login']);
+	unset($_SESSION['credential']);
+	header('Content-Type: application/json');
+	echo json_encode(['status' => 'success', 'info' => 'Logout successfully']);
+	exit();
+});
 Router::get('/api/users', 'Tamce\BBT\Controllers\User@listUser');
 Router::post('/api/users', 'Tamce\BBT\Controllers\User@create');
 Router::route('/api/user', 'Tamce\BBT\Controllers\User@current');
@@ -36,10 +48,27 @@ Router::get('/api/class', 'Tamce\BBT\Controllers\CClass@listClass');
 Router::delete('/api/class/{classname}', 'Tamce\BBT\Controllers\CClass@delete');
 Router::get('/api/class/{classname}/{type}', 'Tamce\BBT\Controllers\CClass@member');
 
-// 待编写
+Router::get('/stage/{stage}', function ($stage) {
+	$stage = strtolower($stage);
+	switch ($stage) {
+		case 'home':
+			Renderer::render('Home');
+			break;
+		case 'profile':
+			Renderer::render('Profile');
+			break;
+		default:
+			Helper::abort(404);
+			break;
+	}
+});
 Router::get('/api/user/avatar', 'Tamce\BBT\Controllers\User@avatar');
 Router::post('/api/user/avatar', 'Tamce\BBT\Controllers\User@uploadAvatar');
 Router::get('/api/user/{username}/avatar', 'Tamce\BBT\Controllers\User@avatar');
+
+// 待编写
+Router::get('/api/export/all', 'Tamce\BBT\Controllers\User@export');
+Router::get('/api/export/{classname}/{type}', 'Tamce\BBT\Controllers\CClass@export');
 
 /**
  * -----------------------------------------------------------
