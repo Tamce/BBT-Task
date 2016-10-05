@@ -3,6 +3,9 @@ namespace Tamce\BBT\Controllers;
 
 use Tamce\BBT\Models\User as MUser;
 use Tamce\BBT\Core\Helper;
+use PDO;
+use UserGroup;
+use Constants;
 
 class User extends Controller
 {
@@ -10,7 +13,7 @@ class User extends Controller
 	public function authorize()
 	{
 		if (isset($_SESSION['login']) && $_SESSION['login']) {
-			$this->response(['status' => 'notice', 'info' => 'You have already login!']);
+			$this->response(['status' => 'notice', 'info' => 'You have already login!', 'data' => $_SESSION['user'], 'session' => session_id(), 'credential' => $_SESSION['credential']]);
 		}
 		if (empty($this->request('username')) or empty($this->request('password'))) {
 			Helper::abort(400);
@@ -21,6 +24,7 @@ class User extends Controller
 			$user = $result[0];
 			if (Helper::validatePassword($this->request('password'), $user['password'])) {
 				// 验证通过
+				$_SESSION['avatar'] = $user['avatar'];
 				$_SESSION['user'] = Helper::packUser($user);
 				$_SESSION['login'] = true;
 				$_SESSION['credential'] = Helper::randomString(15);
@@ -69,12 +73,13 @@ class User extends Controller
 					$_SESSION['user'] = Helper::packUser($user->find(['username' => $_SESSION['user']['username']])[0]);
 					$this->response(['status' => 'success', 'info' => 'Data change successfully!', 'data' => $_SESSION['user']]);
 				}
-				$user->updateVerify(['username' => $_SESSION['user']['username']], [
+				$user->updateVerify(['username' => $_SESSION['user']['username'],
 						'name' => $this->request('name'),
 						'gender' => $this->request('gender'),
-						'classname' => $this->request('classname')
+						'classname' => $this->request('classname'),
+						'userGroup' => $_SESSION['user']['userGroup']
 					]);
-				$this->response(['status' => 'success', 'info' => 'Data saved! Waiting for verify...', 'data' => $_SESSION['user']]);
+				$this->response(['status' => 'notice', 'info' => "Your request to edit your profile has saved!\nWaiting for verify...", 'data' => $_SESSION['user']]);
 				break;
 			case 'GET':
 				$this->response(['status' => 'success', 'data' => $_SESSION['user']]);
@@ -94,8 +99,12 @@ class User extends Controller
 
 		Helper::loadConstants();
 		if ($this->request('userGroup') == UserGroup::Admin) {
-			if ($this->queryString('key') != Constants::Key) {
+			if ($this->request('key') != Constants::AdminKey) {
 				$this->response(['status' => 'error', 'info' => 'Invalid key, you cannot create an Admin!']);
+			}
+		} elseif ($this->request('userGroup') == UserGroup::Teacher) {
+			if ($this->request('key') != Constants::TeacherKey) {
+				$this->response(['status' => 'error', 'info' => 'Invalid key, you cannot create a Teacher!']);
 			}
 		}
 
@@ -115,6 +124,7 @@ class User extends Controller
 		$muser->create($info);
 		$_SESSION['user'] = Helper::packUser($muser->find(['username' => $info['username']])[0]);
 		$_SESSION['login'] = true;
+		$_SESSION['avatar'] = '';
 		$_SESSION['credential'] = Helper::randomString(15);
 		$this->response(['status' => 'success', 'data' => $_SESSION['user'], 'credential' => $_SESSION['credential'], 'session' => session_id()]);
 	}
@@ -137,9 +147,33 @@ class User extends Controller
 		   	($info['userGroup'] == UserGroup::Teacher ?
 		   		in_array($_SESSION['user']['classname'], json_decode($info['classname'], true)) :
 		   		$_SESSION['user']['classname'] == $info['classname']))) {
-			$this->response(['info' => 'success', 'data' => Helper::packUser($info));
+			$this->response(['info' => 'success', 'data' => Helper::packUser($info)]);
 		}
 		$this->response(['status' => 'error', 'info' => 'User does not have privilege!'], 403);
+	}
+
+	// GET /api/verify_update
+	public function verifyList()
+	{
+		Helper::ensureLogin();
+		Helper::loadConstants();
+		if ($_SESSION['user']['userGroup'] == UserGroup::Student) {
+			$this->response(['status' => 'error', 'info' => 'User does not have privilege!'], 403);
+		}
+		$muser = new MUser;
+		$result = $muser->pdo->query('SELECT * FROM `verify`')->fetchAll(PDO::FETCH_ASSOC);
+		if ($_SESSION['user']['userGroup'] == UserGroup::Admin) {
+			$this->response(['status' => 'success', 'data' => $result]);
+		}
+		// Teacher:
+		$data = [];
+		foreach ($result as &$p) {
+			if (in_array($p['classname'], json_decode($_SESSION['user']['classname'], true))) {
+				$data[] = $p;
+			}
+		}
+		$this->response(['status' => 'success', 'data' => $data]);
+
 	}
 
 	// GET /api/verify_update/{username}
@@ -194,18 +228,17 @@ class User extends Controller
 	{
 		Helper::ensureLogin();
 		if (is_null($username)) {
-			header('Content-Type: image/jpg');
-			echo base64_decode($_SESSION['user']['avatar']);
-			return;
+			$data = $_SESSION['avatar'];
+		} else {
+			$muser = new MUser;
+			$result = $muser->find(['username' => $username]);
+			if (count($result) == 0) {
+				$this->response(['status' => 'error', 'info' => 'User Not Found!'], 404);
+			}
+			$data = $result[0]['avatar'];
 		}
-		$muser = new MUser;
-		$result = $muser->find(['username' => $username]);
-		if (count($result) == 0) {
-			$this->response(['status' => 'error', 'info' => 'User Not Found!'], 404);
-		}
-		header('Content-Type: image/jpg');
-		echo base64_decode($result[0]['avatar']);
-		return;
+		// echo $data;
+		echo empty($data) ? '<svg aria-hidden="true" version="1.1" viewBox="0 0 16 16" width="50" height="50"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>' : $data;
 	}
 
 	// POST /api/user/avatar

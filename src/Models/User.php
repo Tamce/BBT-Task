@@ -7,13 +7,8 @@ use Tamce\BBT\Core\Helper;
 
 class User extends Model
 {
-	protected $required = ['username', 'password', 'info', 'userGroup'];
+	protected $required = ['username', 'password', 'userGroup'];
 	protected $cols = ['id', 'username', 'password', 'name', 'gender', 'userGroup', 'avatar', 'classname', 'newUser'];
-	public function __construct()
-	{
-		parent::__construct();
-		$this->connect();
-	}
 
 	public function create(array $info)
 	{
@@ -58,7 +53,7 @@ class User extends Model
 	public function updateVerify(array $info)
 	{
 		$this->deleteVerify($info['username']);
-		$this->insert('verify', ['username', 'name', 'gender', 'classname'], $info);
+		$this->insert('verify', ['username', 'name', 'gender', 'classname', 'userGroup'], $info);
 	}
 
 	public function deleteVerify($username)

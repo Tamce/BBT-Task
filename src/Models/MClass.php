@@ -1,6 +1,7 @@
 <?php
 namespace Tamce\BBT\Models;
 
+use PDO;
 use Exception;
 
 class MClass extends Model
@@ -13,7 +14,7 @@ class MClass extends Model
 				throw new Exception("`$key` is required when creating a class.");
 			}
 		}
-		$this->insert('class', $this->requried, $info);
+		$this->insert('class', $this->required, $info);
 	}
 
 	public function delete(array $cond)

@@ -3,11 +3,16 @@ namespace Tamce\BBT\Models;
 
 use PDO;
 use Tamce\BBT\Core\Helper;
+use Exception;
 
 class Model
 {
 	public $pdo;
-	public function __construct() {}
+	public function __construct()
+	{
+		$this->connect();
+	}
+	
 	public function connect()
 	{
 		if (!is_null($this->pdo)) {

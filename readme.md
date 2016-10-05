@@ -92,7 +92,7 @@
  __Authorization Required__
  Student Group 只能查看同班的信息
 #### request
- * url: /api/user/{username}
+ * url: /api/users/{username}
  * method: GET
 
 #### response

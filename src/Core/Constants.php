@@ -1,9 +1,7 @@
 <?php
 
-class UserGroup extends SplEnum
+class UserGroup
 {
-	const __default == self::Student;
-
 	const Student = 1;
 	const Teacher = 2;
 	const Admin = 3;
@@ -11,5 +9,6 @@ class UserGroup extends SplEnum
 
 class Constants
 {
-	const Key = 'dQZ9ry6qba6y0I6';
+	const AdminKey = 'AdminKey';
+	const TeacherKey = 'TeacherKey';
 }

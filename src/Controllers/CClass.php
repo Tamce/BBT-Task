@@ -3,6 +3,7 @@ namespace Tamce\BBT\Controllers;
 
 use Tamce\BBT\Models\MClass;
 use Tamce\BBT\Core\Helper;
+use UserGroup;
 
 // 由于命名冲突问题故使用 CClass
 class CClass extends Controller
