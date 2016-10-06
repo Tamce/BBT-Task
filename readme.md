@@ -18,7 +18,10 @@
 * HTTP 头 `X-Credential` 包含了重现会话所需要的加密令牌
 
 ## 关于代码的一些说明
- 由于一开始准备按整个需求做，而且准备做前后分离(做成SPA)，使用ajax + api 交互，但是既然要提前交基础功能，所以没有使用单页，而且一些 api 目前很乱，是为了让目前的这个架构能够正确工作而所做的变更和妥协。 例如 api 的 jump 键。
+ 目前存在一些潜在的安全问题如 xss注入 尚未理会
+ 目前后端关于查询的部分性能有待完善(在小数据量时影响不大)
+
+ 因为编写前端时间分配问题以及本人前端水平不佳，因此前端体验没有提升至最佳，但功能点均已实现
 
 ## Api Documents
  所有数据暂时以 form-data 形式传输给服务器
@@ -101,6 +104,18 @@
 
 ---
 
+### Verify list
+ __Authorization Required__
+#### request
+ * url: /api/verify_update
+ * method: GET
+
+#### response
+ * status: 状态
+ * data: 数据
+
+---
+
 ### Verify Update
  __Authorization Required__
 #### request
@@ -171,7 +186,7 @@
 
 ---
 
-## Tests
+## Independent CURL Tests
  1. curl public.bbt.localhost/api/users -X POST -d "username=tamce&password=123&userGroup=1"
  2. curl public.bbt.localhost/api/user -H "X-Session-Id: 25atfnfvm3vkmuvfhkmdadlbl3" -H "X-Credential: jfioBn7gVznyhKv"
  3. curl public.bbt.localhost/api/user -X PATCH -d "gender=male&name=Tamce&classname=class%201" -H "X-Session-Id: 25atfnfvm3vkmuvfhkmdadlbl3" -H "X-Credential: jfioBn7gVznyhKv"
